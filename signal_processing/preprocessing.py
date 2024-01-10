@@ -29,6 +29,10 @@ def rename_channels(raw):
 
 def extract_recording_center(raw,percentage=75):
   t = raw.n_times/raw.info['sfreq']
-  percent = 75/100
-  raw.crop(tmin=(((1-percent)/2)*t),tmax=((((1-percent)/2)+percent)*t))
+  percentage = percentage/100
+  raw.crop(tmin=(((1-percentage)/2)*t),tmax=((((1-percentage)/2)+percentage)*t))
+  return raw
+
+def filter(raw,lpf=None,hpf=None):
+  raw.filter(hpf,lpf)
   return raw
