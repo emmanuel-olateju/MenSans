@@ -1,4 +1,4 @@
-import Montage
+import mne
 import matplotlib.pyplot as plt
 
 
