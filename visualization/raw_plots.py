@@ -10,10 +10,10 @@ def suppress_extr_plot(func):
         plt.close(fig)
     return wrapper
 
-@suppress_extr_plot("arg1", "arg2")
+@suppress_extr_plot
 def plot_psd(raw,wargs):
     raw.plot_psd(**wargs)
 
-@suppress_extr_plot("arg1", "arg2")
+@suppress_extr_plot
 def plot(raw,wargs):
     raw.plot(**wargs)
