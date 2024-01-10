@@ -12,8 +12,12 @@ def suppress_extr_plot(func):
 
 @suppress_extr_plot
 def plot_psd(raw,wargs):
-    raw.plot_psd(**wargs)
+    return raw.plot_psd(**wargs)
 
 @suppress_extr_plot
 def plot(raw,wargs):
-    raw.plot(**wargs)
+    return raw.plot(**wargs)
+
+@suppress_extr_plot
+def plot_psd_topmap(raw,wargs):
+    return raw.plot_psd_topomap(**wargs)
