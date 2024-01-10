@@ -26,3 +26,9 @@ def drop_accelerometer_channels(raw):
 def rename_channels(raw):
   raw.rename_channels(channels_map)
   return raw
+
+def extract_recording_center(raw,percentage=75):
+  t = raw.n_times/raw.info['sfreq']
+  percent = 75/100
+  raw.crop(tmin=(((1-percent)/2)*t),tmax=((((1-percent)/2)+percent)*t))
+  return raw
