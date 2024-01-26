@@ -1,4 +1,9 @@
 import mne
+import sys
+sys.path.append('../pipeline')
+from Pipeline import Pipeline
+
+import copy
 
 channels_map = {
   'EEG 1':'Fp1',
@@ -33,10 +38,23 @@ def extract_recording_center(raw,percentage=75):
   raw.crop(tmin=(((1-percentage)/2)*t),tmax=((((1-percentage)/2)+percentage)*t))
   return raw
 
-def notch_filter(raw,wargs={}):
-  raw.notch_filter(**wargs)
+def notch_filter(raw,freqs):
+  raw.notch_filter(freqs=freqs)
   return raw
 
 def filter(raw,lpf=None,hpf=None):
   raw.filter(hpf,lpf)
   return raw
+
+class PrepocessingPipeline(Pipeline):
+  def __init__(self,name,methods):
+    super().__init__(name,methods)
+  
+  def forward(self, raw: mne.io.edf.edf.RawEDF) -> mne.io.edf.edf.RawEDF:
+    res = copy.deepcopy(raw)
+    for method in self.methods:
+      if len(method)==2:
+        res = method[0](raw,**method[1])
+      elif len(method)==1:
+        res = method[0](raw)
+    return res
