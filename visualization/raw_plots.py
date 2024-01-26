@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 
 def suppress_extr_plot(func):
     def wrapper(*args, **kwargs):
-        plt.close()
-        fig = plt.figure()
+        plt.close('all')
+        # fig = plt.figure()
         return func(*args,**kwargs)
-        plt.close(fig)
+        plt.close('all')
     return wrapper
 
 @suppress_extr_plot
