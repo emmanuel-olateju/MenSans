@@ -50,7 +50,7 @@ class PrepocessingPipeline(Pipeline):
   def __init__(self,name,methods):
     super().__init__(name,methods)
   
-  def forward(self, raw: mne.io.edf.edf.RawEDF) -> mne.io.edf.edf.RawEDF:
+  def forward(self, raw: mne.io.Raw) -> mne.io.Raw:
     res = copy.deepcopy(raw)
     for method in self.methods:
       if len(method)==2:
