@@ -1,6 +1,6 @@
 import mne
 import sys
-from MenSans.Pipeline.Pipeline import Pipeline
+from Pipeline.Pipeline import Pipeline
 
 import copy
 

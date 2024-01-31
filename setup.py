@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup,find_packages
 
 setup(
     name='MenSans',
@@ -7,8 +7,7 @@ setup(
     url='https://github.com/emmanuel-olateju/MenSans',
     author='Emmanuel Olateju',
     author_email='oltejuemmanuel@gmail.com',
-    license='BSD 2-clause',
-    packages=['Pipeline','signal_processing','visualization'],
+    packages=find_packages(),
     install_requires=[
         'mne==1.6.0',  
         'matplotlib==3.8.2'                  
