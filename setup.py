@@ -8,7 +8,7 @@ setup(
     author='Emmanuel Olateju',
     author_email='oltejuemmanuel@gmail.com',
     license='BSD 2-clause',
-    packages=['MenSans'],
+    packages=['Pipeline','signal_processing','visualization'],
     install_requires=[
         'mne==1.6.0',  
         'matplotlib==3.8.2'                  
