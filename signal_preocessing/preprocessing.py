@@ -1,7 +1,6 @@
 import mne
 import sys
-sys.path.append('../pipeline')
-from pipeline import Pipeline
+from MenSans.Pipeline.Pipeline import Pipeline
 
 import copy
 
