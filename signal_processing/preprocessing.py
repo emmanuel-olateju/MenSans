@@ -1,6 +1,6 @@
 import mne
-import sys
-from Pipeline.Pipeline import Pipeline
+
+from pipeline.Pipeline import Pipeline
 
 import copy
 

@@ -1,5 +1,6 @@
 import mne 
 import matplotlib.pyplot as plt
+import numpy as np
 
 class Montage:
     def __init__(self,chs,coord):
@@ -13,6 +14,25 @@ class Montage:
         fig = plt.figure()
         self.montage.plot(**arguments)
         plt.close()
+
+openBCIcoordsArray = np.array([
+    [-0.025, 0.09, 0.0],
+    [0.025, 0.09, 0.0],
+    [-0.045, 0, 0.0],
+    [0.045, 0, 0.0],
+    [-0.08, -0.05, 0.0],
+    [0.08, -0.05, 0.0],
+    [-0.025, -0.09, 0.0],
+    [0.025, -0.09, 0.0],
+    [-0.08, 0.05, 0.0],
+    [0.08, 0.05, 0.0],
+    [-0.04, 0.045, 0.0],
+    [0.04, 0.045, 0.0],
+    [-0.095, 0, 0.0],
+    [0.095, 0, 0.0],
+    [-0.04, -0.045, 0.0],
+    [0.04, -0.045, 0.0],
+])
 
 openBCIcoords = {
     'Fp1': [-0.025, 0.09, 0.0],
