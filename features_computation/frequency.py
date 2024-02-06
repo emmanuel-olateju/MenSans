@@ -13,7 +13,7 @@ def band_power(sig:np.array,fs:int,band:List[float],method:str='welch',avg_type:
     else:
         _band_power = spectrum[((freqs>=band[0]) & (freqs<=band[1]))].mean()
 
-    return _band_power
+    return np.log10(_band_power)
 
 def bands_power(sig:np.array,fs:int,bands:List[Tuple[float]],method:str='welch',avg_type:str='mean')->np.array:
 
