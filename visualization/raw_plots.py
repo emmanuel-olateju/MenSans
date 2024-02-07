@@ -96,11 +96,11 @@ def head_plots(data,pos,no_rows,no_columns,colorbar_orientation='vertical',axis=
 
     for r in range(no_rows):
         for c in range(no_columns):
+            b = (r*no_columns)+c
             if data_.ndim==2:
-                b = (r*no_columns)+c
                 pt = mne.viz.plot_topomap(data_[b,:],pos,axes=ax_.flatten()[b],show=False,cmap=new_cmap,cnorm=norm)
             elif data_.ndim==3:
-                pt = mne.viz.plot_topomap(data_[r,c,:],pos,axes=ax_[r,c],show=False,cmap=new_cmap,cnorm=norm)
+                pt = mne.viz.plot_topomap(data_[r,c,:],pos,axes=ax_.flatten()[b],show=False,cmap=new_cmap,cnorm=norm)
             plt.colorbar(pt[0],orientation = colorbar_orientation,use_gridspec=True,label=r'$uV^2 /Hz (dB)$')
     
     fig_.tight_layout()
