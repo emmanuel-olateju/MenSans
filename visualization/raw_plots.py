@@ -32,7 +32,7 @@ def plot_psd_topmap(raw,wargs):
     return raw.plot_psd_topomap(**wargs)
 
 @suppress_extr_plot
-def plot_psds(raws:list,no_rows:int,no_columns:int,fmin_:int,fmax_:int,dB_=True,figsize_=None):
+def plot_psds(raws:list,no_rows:int,no_columns:int,fmin_:int,fmax_:int,dB_=True,figsize_=None,recording_names:List[str]=None,dBlimit:int=50):
 
     assert len(raws)==(no_rows*no_columns)
     
@@ -45,6 +45,9 @@ def plot_psds(raws:list,no_rows:int,no_columns:int,fmin_:int,fmax_:int,dB_=True,
         for c in range(no_columns):
             b = (r*no_columns)+c
             pt = raws[b].plot_psd(fmin_,fmax_,dB_,ax=ax_.flatten()[b])
+            if recording_names!=None:
+                ax_.flatten()[b].set_title(recording_names[b])
+                ax_.flatten()[b].set_ylim((-1)^dBlimit,dBlimit)
     
     fig_.tight_layout()
 
@@ -52,7 +55,7 @@ def plot_psds(raws:list,no_rows:int,no_columns:int,fmin_:int,fmax_:int,dB_=True,
         
 
 @suppress_extr_plot
-def head_plot(data,pos,colorbar_orientation='vertical',axes_=None):
+def head_plot(data,pos,colorbar_orientation='vertical',axes_=None,recording_name:str=None):
 
     min_val = np.min(data)
     max_val = np.max(data)
@@ -61,8 +64,13 @@ def head_plot(data,pos,colorbar_orientation='vertical',axes_=None):
 
     if axes_==None:
         pt = mne.viz.plot_topomap(data,pos,show=False,cmap=new_cmap,cnorm=norm)
+        if recording_name!=None:
+            plt.title(recording_name)
     else:
         pt = mne.viz.plot_topomap(data,pos,axes=axes_,show=False,cmap=new_cmap,cnorm=norm)
+        if recording_name!=None:
+            axes_.set_title(recording_name)
+        
     plt.colorbar(pt[0],orientation = colorbar_orientation,use_gridspec=True,label=r'$uV^2 /Hz (dB)$')
     
     return
