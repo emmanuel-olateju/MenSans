@@ -5,6 +5,7 @@ from matplotlib.colors import Normalize
 import numpy as np
 import copy
 import seaborn as sns
+from typing import *
 
 colors = [(1, 1, 1), (1, 0, 0)]  # White to red
 new_cmap = LinearSegmentedColormap.from_list('white_to_red', colors, N=256)
@@ -109,13 +110,40 @@ def head_plots(data,pos,no_rows,no_columns,colorbar_orientation='vertical',axis=
     return fig_
 
 @suppress_extr_plot
-def covarince_plot(data,ch_names):
+def covariance_plot(data,ch_names,axes=None,method='cov'):
 
-    assert len(ch_names) == data.shap[0]
-    covariance = np.cov(data,axis=1)
-    fig = plt.figure()
-    sns.heatmap(covariance,cmap="YlGnBu")
-    plt.xticks(list(range(data.shape[0])),ch_names,fontsize=7)
-    plt.yticks(list(range(data.shape[0])),ch_names,fontsize=7)
+    assert len(ch_names) == data.shape[0]
 
+    if method=='cov':
+        cov_corr = np.cov(data)
+        global new_cmap
+    elif method=='corr':
+        cov_corr = np.corrcoef(data)
+        new_cmap = 'RdBu'
+
+    if axes==None:
+        fig = plt.figure()
+        plot = sns.heatmap(cov_corr,cmap=new_cmap)
+        plt.xticks(list(range(data.shape[0])),ch_names,fontsize=7)
+        plt.yticks(list(range(data.shape[0])),ch_names,fontsize=7)
+    else:
+        sns.heatmap(cov_corr,cmap=new_cmap,ax=axes)
+        axes.set_xticks(list(range(data.shape[0])),ch_names,fontsize=7)
+        axes.set_yticks(list(range(data.shape[0])),ch_names,fontsize=7)
+
+    if axes==None:
+        return fig
+    else:
+        return
+    
+@suppress_extr_plot
+def covariance_plots(data:List[np.array],ch_names:List[str],no_rows:int,no_cols:int,method:str='cov')->plt.figure:
+
+    fig, ax = plt.subplots(no_rows,no_cols,figsize=(no_cols*10,no_rows*4))
+
+    for r in range(no_rows):
+        for c in range(no_cols):
+            b = (r*no_cols)+c
+            covariance_plot(data[b],ch_names,axes=ax.flatten()[b],method=method)
+    
     return fig
