@@ -4,6 +4,7 @@ from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.colors import Normalize
 import numpy as np
 import copy
+import seaborn as sns
 
 colors = [(1, 1, 1), (1, 0, 0)]  # White to red
 new_cmap = LinearSegmentedColormap.from_list('white_to_red', colors, N=256)
@@ -106,3 +107,15 @@ def head_plots(data,pos,no_rows,no_columns,colorbar_orientation='vertical',axis=
     fig_.tight_layout()
 
     return fig_
+
+@suppress_extr_plot
+def covarince_plot(data,ch_names):
+
+    assert len(ch_names) == data.shap[0]
+    covariance = np.cov(data,axis=1)
+    fig = plt.figure()
+    sns.heatmap(covariance,cmap="YlGnBu")
+    plt.xticks(list(range(data.shape[0])),ch_names,fontsize=7)
+    plt.yticks(list(range(data.shape[0])),ch_names,fontsize=7)
+
+    return fig
