@@ -41,13 +41,20 @@ def plot_psds(raws:list,no_rows:int,no_columns:int,fmin_:int,fmax_:int,dB_=True,
     else:
         fig_, ax_ = plt.subplots(no_rows,no_columns)
     
-    for r in range(no_rows):
-        for c in range(no_columns):
-            b = (r*no_columns)+c
-            pt = raws[b].plot_psd(fmin_,fmax_,dB_,ax=ax_.flatten()[b])
-            if recording_names!=None:
-                ax_.flatten()[b].set_title(recording_names[b])
-                ax_.flatten()[b].set_ylim((-1)*dBlimit,dBlimit)
+    if no_rows*no_columns>1:
+        for r in range(no_rows):
+            for c in range(no_columns):
+                b = (r*no_columns)+c    
+                pt = raws[b].plot_psd(fmin_,fmax_,dB_,ax=ax_.flatten()[b])
+                if recording_names!=None:
+                    ax_.flatten()[b].set_title(recording_names[b])
+                    ax_.flatten()[b].set_ylim((-1)*dBlimit,dBlimit)
+    else:
+        pt = raws[0].plot_psd(fmin_,fmax_,dB_,ax=ax_)
+        if recording_names!=None:
+            ax_.set_title(recording_names[0])
+            ax_.set_ylim((-1)*dBlimit,dBlimit)
+            
     
     fig_.tight_layout()
 
@@ -149,9 +156,12 @@ def covariance_plots(data:List[np.array],ch_names:List[str],no_rows:int,no_cols:
 
     fig, ax = plt.subplots(no_rows,no_cols,figsize=(no_cols*10,no_rows*4))
 
-    for r in range(no_rows):
-        for c in range(no_cols):
-            b = (r*no_cols)+c
-            covariance_plot(data[b],ch_names,axes=ax.flatten()[b],method=method)
+    if no_rows*no_cols>1:
+        for r in range(no_rows):
+            for c in range(no_cols):
+                b = (r*no_cols)+c
+                covariance_plot(data[b],ch_names,axes=ax.flatten()[b],method=method)
+    else:
+        covariance_plot(data[0],ch_names,axes=ax,method=method)
     
     return fig
