@@ -87,6 +87,8 @@ def head_plots(data,pos,no_rows,no_columns,colorbar_orientation='vertical',axis=
 
     assert data.ndim==2 or data.ndim==3
 
+    global new_cmap
+
     data_ = copy.deepcopy(data)
 
     min_val = np.min(data_)
