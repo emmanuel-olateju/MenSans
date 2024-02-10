@@ -47,7 +47,7 @@ def plot_psds(raws:list,no_rows:int,no_columns:int,fmin_:int,fmax_:int,dB_=True,
             pt = raws[b].plot_psd(fmin_,fmax_,dB_,ax=ax_.flatten()[b])
             if recording_names!=None:
                 ax_.flatten()[b].set_title(recording_names[b])
-                ax_.flatten()[b].set_ylim((-1)^dBlimit,dBlimit)
+                ax_.flatten()[b].set_ylim((-1)*dBlimit,dBlimit)
     
     fig_.tight_layout()
 
