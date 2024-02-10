@@ -83,9 +83,11 @@ def head_plot(data,pos,colorbar_orientation='vertical',axes_=None,recording_name
     return
 
 @suppress_extr_plot
-def head_plots(data,pos,no_rows,no_columns,colorbar_orientation='vertical',axis=1,figsize_=None):
+def head_plots(data,pos,no_rows,no_columns,colorbar_orientation='vertical',axis=1,figsize_=None,recording_names=None,band_names=None):
 
     assert data.ndim==2 or data.ndim==3
+    assert len(band_names)==no_columns
+    assert len(recording_names)==no_rows
 
     global new_cmap
 
@@ -121,13 +123,17 @@ def head_plots(data,pos,no_rows,no_columns,colorbar_orientation='vertical',axis=
             elif data_.ndim==3:
                 pt = mne.viz.plot_topomap(data_[r,c,:],pos,axes=ax_.flatten()[b],show=False,cmap=new_cmap,cnorm=norm)
             plt.colorbar(pt[0],orientation = colorbar_orientation,use_gridspec=True,label=r'$uV^2 /Hz (dB)$')
+            if band_names!=None and r==0:
+                ax_.flatten()[b].set_title(band_names[c])
+            if c==0 and recording_names!=None:
+                ax_.flatten()[b].set_ylabel(recording_names[r])
     
     fig_.tight_layout()
 
     return fig_
 
 @suppress_extr_plot
-def covariance_plot(data,ch_names,axes=None,method='cov'):
+def covariance_plot(data,ch_names,axes=None,method='cov',record_name=None):
 
     assert len(ch_names) == data.shape[0]
 
@@ -147,6 +153,8 @@ def covariance_plot(data,ch_names,axes=None,method='cov'):
         sns.heatmap(cov_corr,cmap=new_cmap,ax=axes)
         axes.set_xticks(list(range(data.shape[0])),ch_names,fontsize=7)
         axes.set_yticks(list(range(data.shape[0])),ch_names,fontsize=7)
+        if record_name!=None:
+            axes.set_title(record_name)
 
     if axes==None:
         return fig
@@ -154,7 +162,7 @@ def covariance_plot(data,ch_names,axes=None,method='cov'):
         return
     
 @suppress_extr_plot
-def covariance_plots(data:List[np.array],ch_names:List[str],no_rows:int,no_cols:int,method:str='cov')->plt.figure:
+def covariance_plots(data:List[np.array],ch_names:List[str],no_rows:int,no_cols:int,method:str='cov',recording_names:List[str]=None)->plt.figure:
 
     fig, ax = plt.subplots(no_rows,no_cols,figsize=(no_cols*10,no_rows*4))
 
@@ -162,7 +170,10 @@ def covariance_plots(data:List[np.array],ch_names:List[str],no_rows:int,no_cols:
         for r in range(no_rows):
             for c in range(no_cols):
                 b = (r*no_cols)+c
-                covariance_plot(data[b],ch_names,axes=ax.flatten()[b],method=method)
+                if recording_names==None:
+                    covariance_plot(data[b],ch_names,axes=ax.flatten()[b],method=method)
+                else:
+                    covariance_plot(data[b],ch_names,axes=ax.flatten()[b],method=method,record_name=recording_names[b])
     else:
         covariance_plot(data[0],ch_names,axes=ax,method=method)
     
