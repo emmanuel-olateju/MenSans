@@ -6,6 +6,7 @@ import numpy as np
 import copy
 import seaborn as sns
 from typing import *
+import pandas as pd
 
 colors = [(1, 1, 1), (1, 0, 0)]  # White to red
 new_cmap = LinearSegmentedColormap.from_list('white_to_red', colors, N=256)
@@ -177,4 +178,22 @@ def covariance_plots(data:List[np.array],ch_names:List[str],no_rows:int,no_cols:
     else:
         covariance_plot(data[0],ch_names,axes=ax,method=method)
     
-    return fig
+    return figs
+@suppress_extr_plot
+def hjorth_plot(hjorth_values,recording_names=None):
+
+    if isinstance(hjorth_values,list):
+        no_rows = len(hjorth_values)
+
+        fig, ax_ = plt.subplots(no_rows,1)
+
+        for r in range(no_rows):
+            h = hjorth_values[r]
+            sns.heatmap(h.T,ax=ax_.flatten()[r])
+            if recording_names!=None:
+                ax_[r].set_title(recording_names[r])
+        # fig.tight_layout()
+        return fig
+    else:
+        return sns.heatmap(hjorth_values.T)
+
