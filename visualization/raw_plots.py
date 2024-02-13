@@ -9,7 +9,6 @@ from typing import *
 import pandas as pd
 
 colors = [(1, 1, 1), (1, 0, 0)]  # White to red
-new_cmap = LinearSegmentedColormap.from_list('white_to_red', colors, N=256)
 
 
 def suppress_extr_plot(func):
@@ -68,7 +67,8 @@ def head_plot(data,pos,colorbar_orientation='vertical',axes_=None,recording_name
     min_val = np.min(data)
     max_val = np.max(data)
     norm = Normalize(vmin=min_val, vmax=max_val)
-    colors = [new_cmap(norm(value)) for value in data.flatten()]
+    global colors
+    new_cmap = LinearSegmentedColormap.from_list('white_to_red', colors, N=256)
 
     if axes_==None:
         pt = mne.viz.plot_topomap(data,pos,show=False,cmap=new_cmap,cnorm=norm)
@@ -90,14 +90,13 @@ def head_plots(data,pos,no_rows,no_columns,colorbar_orientation='vertical',axis=
     assert len(band_names)==no_columns
     assert len(recording_names)==no_rows
 
-    global new_cmap
-
     data_ = copy.deepcopy(data)
 
     min_val = np.min(data_)
     max_val = np.max(data_)
     norm = Normalize(vmin=min_val, vmax=max_val)
-    colors = [new_cmap(norm(value)) for value in data_.flatten()]
+    global colors
+    new_cmap = LinearSegmentedColormap.from_list('white_to_red', colors, N=256)
 
     if data_.ndim==2:
         if axis==1: 
@@ -134,24 +133,31 @@ def head_plots(data,pos,no_rows,no_columns,colorbar_orientation='vertical',axis=
     return fig_
 
 @suppress_extr_plot
-def covariance_plot(data,ch_names,axes=None,method='cov',record_name=None):
+def covariance_plot(data,ch_names,axes=None,method='cov',record_name=None,vmin=None,vmax=None):
 
     assert len(ch_names) == data.shape[0]
 
+    # r2b_colors = [(1, 0, 0), (0, 0, 1)]  # Red To Blue
+    # new_cmap = LinearSegmentedColormap.from_list('red_to_blue', r2b_colors, N=256)
+    new_cmap = 'RdBu'
+
     if method=='cov':
         cov_corr = np.cov(data)
-        global new_cmap
+        # global colors
+        # new_cmap = LinearSegmentedColormap.from_list('white_to_red', colors, N=256)
     elif method=='corr':
         cov_corr = np.corrcoef(data)
-        new_cmap = 'RdBu'
+        vmin = -1
+        vmax = 1
+        # new_cmap = 'RdBu'
 
     if axes==None:
         fig = plt.figure()
-        plot = sns.heatmap(cov_corr,cmap=new_cmap)
+        plot = sns.heatmap(cov_corr,cmap=new_cmap,vmin=vmin,vmax=vmax)
         plt.xticks(list(range(data.shape[0])),ch_names,fontsize=7)
         plt.yticks(list(range(data.shape[0])),ch_names,fontsize=7)
     else:
-        sns.heatmap(cov_corr,cmap=new_cmap,ax=axes)
+        sns.heatmap(cov_corr,cmap=new_cmap,ax=axes,vmin=vmin,vmax=vmax)
         axes.set_xticks(list(range(data.shape[0])),ch_names,fontsize=7)
         axes.set_yticks(list(range(data.shape[0])),ch_names,fontsize=7)
         if record_name!=None:
@@ -167,20 +173,34 @@ def covariance_plots(data:List[np.array],ch_names:List[str],no_rows:int,no_cols:
 
     fig, ax = plt.subplots(no_rows,no_cols,figsize=(no_cols*10,no_rows*4))
 
+    min_val = np.min(np.array([np.cov(data_) for data_ in data]))
+    max_val = np.max(np.array([np.cov(data_) for data_ in data]))
+
     if no_rows*no_cols>1:
         for r in range(no_rows):
             for c in range(no_cols):
                 b = (r*no_cols)+c
                 if recording_names==None:
-                    covariance_plot(data[b],ch_names,axes=ax.flatten()[b],method=method)
+                    covariance_plot(data[b],ch_names,axes=ax.flatten()[b],method=method,vmin=min_val,vmax=max_val)
                 else:
-                    covariance_plot(data[b],ch_names,axes=ax.flatten()[b],method=method,record_name=recording_names[b])
+                    covariance_plot(data[b],ch_names,axes=ax.flatten()[b],method=method,record_name=recording_names[b],vmin=min_val,vmax=max_val)
     else:
-        covariance_plot(data[0],ch_names,axes=ax,method=method)
+        covariance_plot(data[0],ch_names,axes=ax,method=method,vmin=min_val,vmax=max_val)
     
-    return figs
+    return fig
+
 @suppress_extr_plot
 def hjorth_plot(hjorth_values,recording_names=None):
+
+    all_values = list()
+
+    for values in hjorth_values:
+        all_values += values.values.flatten().tolist()
+
+    min_val = min(all_values)
+    max_val = max(all_values)
+    global colors
+    new_cmap = LinearSegmentedColormap.from_list('white_to_red', colors, N=256)
 
     if isinstance(hjorth_values,list):
         no_rows = len(hjorth_values)
@@ -189,11 +209,13 @@ def hjorth_plot(hjorth_values,recording_names=None):
 
         for r in range(no_rows):
             h = hjorth_values[r]
-            sns.heatmap(h.T,ax=ax_.flatten()[r])
+            sns.heatmap(h.T,ax=ax_.flatten()[r],cmap=new_cmap,vmin=min_val,vmax=max_val)
             if recording_names!=None:
                 ax_[r].set_title(recording_names[r])
-        # fig.tight_layout()
+        fig.tight_layout()
         return fig
     else:
-        return sns.heatmap(hjorth_values.T)
-
+        fig = plt.figure()
+        sns.heatmap(hjorth_values.T,cmap=new_cmap,cnorm=norm,vmin=min_val,vmax=max_val)
+        fig.tight_layout()
+        return fig

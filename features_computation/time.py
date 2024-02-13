@@ -47,6 +47,8 @@ def hjorth_parameters_computation(data:Union[np.ndarray,List], segment_size:int=
 
 def hjorth_2D(data:Union[np.ndarray,List[list]],segment_size:int,ch_names:Union[List,np.ndarray]=None)->pd.DataFrame:
 
+    if isinstance(data,list):
+        data = np.array(data)
     assert data.ndim==2
     if ch_names!=None:
         assert data.shape[0]==len(ch_names)
