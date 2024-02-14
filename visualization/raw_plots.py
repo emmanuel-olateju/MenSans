@@ -32,16 +32,12 @@ def plot_psd_topmap(raw,wargs):
     return raw.plot_psd_topomap(**wargs)
 
 @suppress_extr_plot
-def plot_psds(raws:list,no_rows:int,no_columns:int,fmin_:int,fmax_:int,dB_=True,figsize_=None,recording_names:List[str]=None,dBlimit:int=50):
+def plot_psds(raws:list,no_rows:int,no_columns:int,fmin_:int,fmax_:int,dB_=True,figsize_=None,recording_names:List[str]=None,dBlimit:Union[Tuple[float],List[float]]=(-50.0,50.0)):
 
     assert no_columns==1
     assert len(raws)==(no_rows)
     figures = list()
     
-    # if figsize_!=None:
-    #     fig_, ax_ = plt.subplots(no_rows,no_columns,figsize=figsize_)
-    # else:
-    #     fig_, ax_ = plt.subplots(no_rows,no_columns,figsize=(no_columns*4.5,no_rows*1.8))
     
     if no_rows>1:
         for r in range(no_rows):
@@ -53,7 +49,7 @@ def plot_psds(raws:list,no_rows:int,no_columns:int,fmin_:int,fmax_:int,dB_=True,
                 pt = raws[r].plot_psd(fmin_,fmax_,dB_,ax=ax_)
                 if recording_names!=None:
                     ax_.set_title(recording_names[r],fontsize=10)
-                    ax_.set_ylim((-1)*dBlimit,dBlimit)
+                    ax_.set_ylim(dBlimit[0],dBlimit[1])
             figures.append(fig_)
     else:
         if figsize_!=None:
@@ -63,7 +59,7 @@ def plot_psds(raws:list,no_rows:int,no_columns:int,fmin_:int,fmax_:int,dB_=True,
         pt = raws[0].plot_psd(fmin_,fmax_,dB_,ax=ax_)
         if recording_names!=None:
             ax_.set_title(recording_names[0],fontsize=10)
-            ax_.set_ylim((-1)*dBlimit,dBlimit)
+            ax_.set_ylim(dBlimit[0],dBlimit[1])
 
     return figures
         
@@ -212,23 +208,32 @@ def hjorth_plot(hjorth_values,recording_names=None):
 
     min_val = min(all_values)
     max_val = max(all_values)
+    norm = Normalize(vmin=min_val, vmax=max_val)
     global colors
     new_cmap = LinearSegmentedColormap.from_list('white_to_red', colors, N=256)
 
     if isinstance(hjorth_values,list):
+
         no_rows = len(hjorth_values)
 
-        fig, ax_ = plt.subplots(no_rows,1)
-
+        figures = list()
+        
         for r in range(no_rows):
+            fig, ax_ = plt.subplots(1,2,figsize=(14,6))
             h = hjorth_values[r]
-            sns.heatmap(h.T,ax=ax_.flatten()[r],cmap=new_cmap,vmin=min_val,vmax=max_val)
+            sns.heatmap(h[['mean_activity','mean_mobility','mean_complexity']].T,ax=ax_[0],cmap=new_cmap)
+            sns.heatmap(h[['std_activity','std_mobility','std_complexity']].T,ax=ax_[1],cmap=new_cmap)
             if recording_names!=None:
-                ax_[r].set_title(recording_names[r])
-        fig.tight_layout()
-        return fig
+                fig.suptitle(recording_names[r])
+            fig.tight_layout()
+            figures.append(fig)
     else:
-        fig = plt.figure()
-        sns.heatmap(hjorth_values.T,cmap=new_cmap,cnorm=norm,vmin=min_val,vmax=max_val)
+        fig, ax_ = plt.subplots(1,2,figsize=(14,6))
+        h = hjorth_values[0]
+        sns.heatmap(h.iloc[:][0:3].T,ax=ax_[0],cmap=new_cmap)
+        sns.heatmap(h.iloc[:][3:].T,ax=ax_[1],cmap=new_cmap)
+        fig.suptitle(recording_names[0])
         fig.tight_layout()
-        return fig
+        figures.append(fig)
+        
+    return figures
