@@ -34,31 +34,38 @@ def plot_psd_topmap(raw,wargs):
 @suppress_extr_plot
 def plot_psds(raws:list,no_rows:int,no_columns:int,fmin_:int,fmax_:int,dB_=True,figsize_=None,recording_names:List[str]=None,dBlimit:int=50):
 
-    assert len(raws)==(no_rows*no_columns)
+    assert no_columns==1
+    assert len(raws)==(no_rows)
+    figures = list()
     
-    if figsize_!=None:
-        fig_, ax_ = plt.subplots(no_rows,no_columns,figsize=figsize_)
-    else:
-        fig_, ax_ = plt.subplots(no_rows,no_columns)
+    # if figsize_!=None:
+    #     fig_, ax_ = plt.subplots(no_rows,no_columns,figsize=figsize_)
+    # else:
+    #     fig_, ax_ = plt.subplots(no_rows,no_columns,figsize=(no_columns*4.5,no_rows*1.8))
     
-    if no_rows*no_columns>1:
+    if no_rows>1:
         for r in range(no_rows):
-            for c in range(no_columns):
-                b = (r*no_columns)+c    
-                pt = raws[b].plot_psd(fmin_,fmax_,dB_,ax=ax_.flatten()[b])
+            if figsize_!=None:
+                fig_, ax_ = plt.subplots(1,1,figsize=figsize_)
+            else:
+                fig_, ax_ = plt.subplots(1,1,figsize=(8,2))
+            for c in range(no_columns):   
+                pt = raws[r].plot_psd(fmin_,fmax_,dB_,ax=ax_)
                 if recording_names!=None:
-                    ax_.flatten()[b].set_title(recording_names[b])
-                    ax_.flatten()[b].set_ylim((-1)*dBlimit,dBlimit)
+                    ax_.set_title(recording_names[r],fontsize=10)
+                    ax_.set_ylim((-1)*dBlimit,dBlimit)
+            figures.append(fig_)
     else:
+        if figsize_!=None:
+            fig_, ax_ = plt.subplots(1,1,figsize=figsize_)
+        else:
+            fig_, ax_ = plt.subplots(1,1,figsize=(8,2))
         pt = raws[0].plot_psd(fmin_,fmax_,dB_,ax=ax_)
         if recording_names!=None:
-            ax_.set_title(recording_names[0])
+            ax_.set_title(recording_names[0],fontsize=10)
             ax_.set_ylim((-1)*dBlimit,dBlimit)
-            
-    
-    fig_.tight_layout()
 
-    return fig_
+    return figures
         
 
 @suppress_extr_plot
@@ -90,6 +97,7 @@ def head_plots(data,pos,no_rows,no_columns,colorbar_orientation='vertical',axis=
     assert len(band_names)==no_columns
     assert len(recording_names)==no_rows
 
+    figures = list()
     data_ = copy.deepcopy(data)
 
     min_val = np.min(data_)
@@ -110,27 +118,32 @@ def head_plots(data,pos,no_rows,no_columns,colorbar_orientation='vertical',axis=
         print(data_.shape)
         assert data_.shape[0]==no_rows and data_.shape[1]==no_columns
 
-    if figsize_!=None:
-        fig_, ax_ = plt.subplots(no_rows,no_columns,figsize=figsize_)
-    else:
-        fig_, ax_ = plt.subplots(no_rows,no_columns,figsize=(no_columns*2,no_rows*2))
+    # if figsize_!=None:
+    #     fig_, ax_ = plt.subplots(no_rows,no_columns,figsize=figsize_)
+    # else:
+    #     fig_, ax_ = plt.subplots(no_rows,no_columns,figsize=(no_columns*2,no_rows*2))
 
     for r in range(no_rows):
+        if figsize_!=None:
+            fig_, ax_ = plt.subplots(1,no_columns,figsize=figsize_)
+        else:
+            fig_, ax_ = plt.subplots(1,no_columns,figsize=(no_columns*2,2))
         for c in range(no_columns):
             b = (r*no_columns)+c
             if data_.ndim==2:
-                pt = mne.viz.plot_topomap(data_[b,:],pos,axes=ax_.flatten()[b],show=False,cmap=new_cmap,cnorm=norm)
+                pt = mne.viz.plot_topomap(data_[b,:],pos,axes=ax_.flatten()[c],show=False,cmap=new_cmap,cnorm=norm)
             elif data_.ndim==3:
-                pt = mne.viz.plot_topomap(data_[r,c,:],pos,axes=ax_.flatten()[b],show=False,cmap=new_cmap,cnorm=norm)
+                pt = mne.viz.plot_topomap(data_[r,c,:],pos,axes=ax_.flatten()[c],show=False,cmap=new_cmap,cnorm=norm)
             plt.colorbar(pt[0],orientation = colorbar_orientation,use_gridspec=True,label=r'$uV^2 /Hz (dB)$')
-            if band_names!=None and r==0:
-                ax_.flatten()[b].set_title(band_names[c])
-            if c==0 and recording_names!=None:
-                ax_.flatten()[b].set_ylabel(recording_names[r])
-    
-    fig_.tight_layout()
+            if band_names!=None:
+                ax_.flatten()[c].set_title('({})'.format(band_names[c]))
+            # if c==0 and recording_names!=None:
+            #     ax_.flatten()[b].set_title(recording_names[r])
+        fig_.suptitle(recording_names[r])
+        fig_.tight_layout()
+        figures.append(fig_)
 
-    return fig_
+    return figures
 
 @suppress_extr_plot
 def covariance_plot(data,ch_names,axes=None,method='cov',record_name=None,vmin=None,vmax=None):
