@@ -50,7 +50,7 @@ def plot_psds(raws:list,no_rows:int,no_columns:int,fmin_:int,fmax_:int,dB_=True,
                 if recording_names!=None:
                     ax_.set_title(recording_names[r],fontsize=10)
                     ax_.set_ylim(dBlimit[0],dBlimit[1])
-            figures.append(fig_)
+            figures.append(pt)
     else:
         if figsize_!=None:
             fig_, ax_ = plt.subplots(1,1,figsize=figsize_)
@@ -60,7 +60,7 @@ def plot_psds(raws:list,no_rows:int,no_columns:int,fmin_:int,fmax_:int,dB_=True,
         if recording_names!=None:
             ax_.set_title(recording_names[0],fontsize=10)
             ax_.set_ylim(dBlimit[0],dBlimit[1])
-
+        figures.append(pt)
     return figures
         
 
@@ -178,25 +178,22 @@ def covariance_plot(data,ch_names,axes=None,method='cov',record_name=None,vmin=N
         return
     
 @suppress_extr_plot
-def covariance_plots(data:List[np.array],ch_names:List[str],no_rows:int,no_cols:int,method:str='cov',recording_names:List[str]=None)->plt.figure:
+def covariance_plots(data:List[np.array],ch_names:List[str],no_rows:int,no_cols:int=1,method:str='cov',recording_names:List[str]=None)->plt.figure:
 
-    fig, ax = plt.subplots(no_rows,no_cols,figsize=(no_cols*10,no_rows*4))
+    assert no_rows==len(recording_names)
+    figures = list()
 
     min_val = np.min(np.array([np.cov(data_) for data_ in data]))
     max_val = np.max(np.array([np.cov(data_) for data_ in data]))
 
-    if no_rows*no_cols>1:
-        for r in range(no_rows):
-            for c in range(no_cols):
-                b = (r*no_cols)+c
-                if recording_names==None:
-                    covariance_plot(data[b],ch_names,axes=ax.flatten()[b],method=method,vmin=min_val,vmax=max_val)
-                else:
-                    covariance_plot(data[b],ch_names,axes=ax.flatten()[b],method=method,record_name=recording_names[b],vmin=min_val,vmax=max_val)
-    else:
-        covariance_plot(data[0],ch_names,axes=ax,method=method,vmin=min_val,vmax=max_val)
-    
-    return fig
+    for r in range(no_rows):
+        fig, ax = plt.subplots(1,1,figsize=(10,4))
+        if recording_names==None:
+            covariance_plot(data[r],ch_names,axes=ax,method=method,vmin=min_val,vmax=max_val)
+        else:
+            covariance_plot(data[r],ch_names,axes=ax,method=method,record_name=recording_names[r],vmin=min_val,vmax=max_val)
+        figures.append(fig)
+    return figures
 
 @suppress_extr_plot
 def hjorth_plot(hjorth_values,recording_names=None):
