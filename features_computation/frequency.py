@@ -45,3 +45,9 @@ def bands_power(sig:np.array,fs:int,bands:List[Tuple[float]],method:str='welch',
             _bands_power[b] = band_power(sig,fs,band,method,avg_type)
     
     return _bands_power
+
+def compute_psd(sig_,fs_):
+    freqs, spectrum = spectral.compute_spectrum(sig_,fs_,'welch','mean')
+    spectrum = np.log10(spectrum)
+
+    return spectrum, freqs
