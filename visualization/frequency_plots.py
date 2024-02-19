@@ -1,6 +1,8 @@
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
+from . import globals
+
 def create_subplots(n_rows,n_cols):
     fig = make_subplots(rows=n_rows, cols=n_cols)
     return fig
@@ -8,7 +10,24 @@ def create_subplots(n_rows,n_cols):
 def plot_psd(psd,freqs,row_,col_,fig_,name_):
     # assert len(psd)==len(freqs)
     # print(psd.shape,freqs.shape)
-    fig_.add_trace(go.Scatter(x=freqs,y=psd,name=name_),row=row_,col=col_)
+    if int(name_[-1])%2==0:
+        fig_.add_trace(
+            go.Scatter(
+                x=freqs,y=psd,
+                name=name_,
+                line=dict(color=globals.sensors_colors[name_][0])
+                ),
+            row=row_,col=col_,
+            )
+    else:
+        fig_.add_trace(
+            go.Scatter(
+                x=freqs,y=psd,
+                name=name_,
+                line=dict(color=globals.sensors_colors[name_][0], dash='dash')
+                ),
+            row=row_,col=col_,
+            )
 
 def find_trace_index(fig_, name_):
     """Find the index of the trace with the specified name."""
