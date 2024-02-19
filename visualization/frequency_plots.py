@@ -7,7 +7,7 @@ def create_subplots(n_rows,n_cols):
     fig = make_subplots(rows=n_rows, cols=n_cols)
     return fig
 
-def plot_psd(psd,freqs,row_,col_,fig_,name_):
+def plot_psd(psd,freqs,row_,col_,fig_,name_,dBlimit=None,freqs_limit=None):
     # assert len(psd)==len(freqs)
     # print(psd.shape,freqs.shape)
     if int(name_[-1])%2==0:
@@ -28,6 +28,9 @@ def plot_psd(psd,freqs,row_,col_,fig_,name_):
                 ),
             row=row_,col=col_,
             )
+    fig_.update_xaxes(range=[freqs_limit[0], freqs_limit[1]])  # Set the range for the x-axis
+    if dBlimit!=None:
+        fig_.update_yaxes(range=[dBlimit[0], dBlimit[1]])
 
 def find_trace_index(fig_, name_):
     """Find the index of the trace with the specified name."""

@@ -7,6 +7,8 @@ import copy
 import seaborn as sns
 from typing import *
 import pandas as pd
+from . import globals
+import features_computation.frequency as frequency_features
 
 colors = [(1, 1, 1), (1, 0, 0)]  # White to red
 
@@ -32,35 +34,43 @@ def plot_psd_topmap(raw,wargs):
     return raw.plot_psd_topomap(**wargs)
 
 @suppress_extr_plot
-def plot_psds(raws:list,no_rows:int,no_columns:int,fmin_:int,fmax_:int,dB_=True,figsize_=None,recording_names:List[str]=None,dBlimit:Union[Tuple[float],List[float]]=(-50.0,50.0)):
+def plot_psds(data:list,no_rows:int,no_columns:int,fmin_:int,fmax_:int,dB_=True,figsize_=None,recording_names:List[str]=None,dBlimit:Union[Tuple[float],List[float]]=(-50.0,50.0)):
 
     assert no_columns==1
-    assert len(raws)==(no_rows)
+    assert len(data)==(no_rows)
     figures = list()
     
     
-    if no_rows>1:
-        for r in range(no_rows):
-            if figsize_!=None:
-                fig_, ax_ = plt.subplots(1,1,figsize=figsize_)
-            else:
-                fig_, ax_ = plt.subplots(1,1,figsize=(8,2))
-            for c in range(no_columns):   
-                pt = raws[r].plot_psd(fmin_,fmax_,dB_,ax=ax_)
-                if recording_names!=None:
-                    ax_.set_title(recording_names[r],fontsize=10)
-                    ax_.set_ylim(dBlimit[0],dBlimit[1])
-            figures.append(pt)
-    else:
+    for r in range(no_rows):
         if figsize_!=None:
             fig_, ax_ = plt.subplots(1,1,figsize=figsize_)
         else:
-            fig_, ax_ = plt.subplots(1,1,figsize=(8,2))
-        pt = raws[0].plot_psd(fmin_,fmax_,dB_,ax=ax_)
-        if recording_names!=None:
-            ax_.set_title(recording_names[0],fontsize=10)
-            ax_.set_ylim(dBlimit[0],dBlimit[1])
-        figures.append(pt)
+            fig_, ax_ = plt.subplots(1,1,figsize=(8,5))
+        # for c in range(no_columns):   
+        #     pt = raws[r].plot_psd(fmin_,fmax_,dB_,ax=ax_)
+        #     if recording_names!=None:
+        #         ax_.set_title(recording_names[r],fontsize=10)
+        #         ax_.set_ylim(dBlimit[0],dBlimit[1])
+        # figures.append(pt)
+        spectrum_, freqs_ = frequency_features.compute_psd(
+            data[r],
+            125
+        )
+        for ch,ch_name in enumerate(globals.channel_names):
+            if int(ch_name[-1])%2==0:
+                ax_.plot(freqs_[(freqs_>fmin_) & (freqs_<fmax_)],spectrum_[ch][(freqs_>fmin_) & (freqs_<fmax_)],label=ch_name,color=globals.sensors_colors[ch_name][0])
+            else:
+                ax_.plot(freqs_[(freqs_>fmin_) & (freqs_<fmax_)],spectrum_[ch][(freqs_>fmin_) & (freqs_<fmax_)],label=ch_name,color=globals.sensors_colors[ch_name][0],linestyle='--')
+            ax_.spines['top'].set_visible(False)
+            ax_.spines['right'].set_visible(False)
+            ax_.spines['bottom'].set_visible(False)
+            ax_.spines['left'].set_visible(False)
+            # ax_.set_xlim(xmin=fmin_, xmax=fmax_)  # Adjust according to your data
+            ax_.set_ylim(ymin=dBlimit[0], ymax=dBlimit[1])  # Adjust according to your data
+            ax_.legend()
+            fig_.suptitle(recording_names[r])
+        figures.append(fig_)
+
     return figures
         
 
