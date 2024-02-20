@@ -46,6 +46,7 @@ def filter(raw,lpf=None,hpf=None):
   return raw
 
 class PrepocessingPipeline(Pipeline):
+  
   def __init__(self,name,methods):
     super().__init__(name,methods)
   

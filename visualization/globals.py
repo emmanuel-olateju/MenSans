@@ -18,3 +18,5 @@ sensors_colors = {
 }
 
 channel_names = ['Fp1', 'Fp2' , 'C3', 'C4', 'T5', 'T6', 'O1', 'O2', 'F7', 'F8', 'F3', 'F4', 'T3', 'T4', 'P3', 'P4']
+
+white_to_red_color = [(1, 1, 1), (1, 0, 0)]  # White to red

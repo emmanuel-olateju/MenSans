@@ -1,4 +1,5 @@
 import mne
+import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.colors import Normalize
@@ -34,24 +35,15 @@ def plot_psd_topmap(raw,wargs):
     return raw.plot_psd_topomap(**wargs)
 
 @suppress_extr_plot
-def plot_psds(data:list,no_rows:int,no_columns:int,fmin_:int,fmax_:int,dB_=True,figsize_=None,recording_names:List[str]=None,dBlimit:Union[Tuple[float],List[float]]=(-50.0,50.0)):
+def plot_psds(data:List[np.ndarray],fmin_:int,fmax_:int,dB_=True,figsize_=None,recording_names:List[str]=None,dBlimit:Union[Tuple[float],List[float]]=(-50.0,50.0)):
 
-    assert no_columns==1
-    assert len(data)==(no_rows)
     figures = list()
     
-    
-    for r in range(no_rows):
+    for r in range(len(data)):
         if figsize_!=None:
             fig_, ax_ = plt.subplots(1,1,figsize=figsize_)
         else:
             fig_, ax_ = plt.subplots(1,1,figsize=(8,5))
-        # for c in range(no_columns):   
-        #     pt = raws[r].plot_psd(fmin_,fmax_,dB_,ax=ax_)
-        #     if recording_names!=None:
-        #         ax_.set_title(recording_names[r],fontsize=10)
-        #         ax_.set_ylim(dBlimit[0],dBlimit[1])
-        # figures.append(pt)
         spectrum_, freqs_ = frequency_features.compute_psd(
             data[r],
             125
@@ -65,7 +57,6 @@ def plot_psds(data:list,no_rows:int,no_columns:int,fmin_:int,fmax_:int,dB_=True,
             ax_.spines['right'].set_visible(False)
             ax_.spines['bottom'].set_visible(False)
             ax_.spines['left'].set_visible(False)
-            # ax_.set_xlim(xmin=fmin_, xmax=fmax_)  # Adjust according to your data
             ax_.set_ylim(ymin=dBlimit[0], ymax=dBlimit[1])  # Adjust according to your data
             ax_.legend()
             fig_.suptitle(recording_names[r])
@@ -75,13 +66,12 @@ def plot_psds(data:list,no_rows:int,no_columns:int,fmin_:int,fmax_:int,dB_=True,
         
 
 @suppress_extr_plot
-def head_plot(data,pos,colorbar_orientation='vertical',axes_=None,recording_name:str=None):
+def head_plot(data:Union[list,np.ndarray],pos:Union[list,np.ndarray],colorbar_orientation:str='vertical',axes_:matplotlib.axes=None,recording_name:str=None)-> None:
 
     min_val = np.min(data)
     max_val = np.max(data)
     norm = Normalize(vmin=min_val, vmax=max_val)
-    global colors
-    new_cmap = LinearSegmentedColormap.from_list('white_to_red', colors, N=256)
+    new_cmap = LinearSegmentedColormap.from_list('white_to_red', globals.white_to_red_color, N=256)
 
     if axes_==None:
         pt = mne.viz.plot_topomap(data,pos,show=False,cmap=new_cmap,cnorm=norm)
@@ -93,11 +83,9 @@ def head_plot(data,pos,colorbar_orientation='vertical',axes_=None,recording_name
             axes_.set_title(recording_name)
         
     plt.colorbar(pt[0],orientation = colorbar_orientation,use_gridspec=True,label=r'$uV^2 /Hz (dB)$')
-    
-    return
 
 @suppress_extr_plot
-def head_plots(data,pos,no_rows,no_columns,colorbar_orientation='vertical',axis=1,figsize_=None,recording_names=None,band_names=None):
+def head_plots(data:Union[List[np.ndarray],np.ndarray],pos:Union[list,np.ndarray],no_rows:int,no_columns:int,colorbar_orientation:str='vertical',axis:int=1,figsize_:Tuple[int,int]=None,recording_names:List[str]=None,band_names:List[str]=None)->plt.figure:
 
     assert data.ndim==2 or data.ndim==3
     assert len(band_names)==no_columns
@@ -109,8 +97,7 @@ def head_plots(data,pos,no_rows,no_columns,colorbar_orientation='vertical',axis=
     min_val = np.min(data_)
     max_val = np.max(data_)
     norm = Normalize(vmin=min_val, vmax=max_val)
-    global colors
-    new_cmap = LinearSegmentedColormap.from_list('white_to_red', colors, N=256)
+    new_cmap = LinearSegmentedColormap.from_list('white_to_red', globals.white_to_red_color, N=256)
 
     if data_.ndim==2:
         if axis==1: 
@@ -123,11 +110,6 @@ def head_plots(data,pos,no_rows,no_columns,colorbar_orientation='vertical',axis=
             data_ = np.moveaxis(data_,range(data_.ndim),[2,0,1])
         print(data_.shape)
         assert data_.shape[0]==no_rows and data_.shape[1]==no_columns
-
-    # if figsize_!=None:
-    #     fig_, ax_ = plt.subplots(no_rows,no_columns,figsize=figsize_)
-    # else:
-    #     fig_, ax_ = plt.subplots(no_rows,no_columns,figsize=(no_columns*2,no_rows*2))
 
     for r in range(no_rows):
         if figsize_!=None:
@@ -152,7 +134,7 @@ def head_plots(data,pos,no_rows,no_columns,colorbar_orientation='vertical',axis=
     return figures
 
 @suppress_extr_plot
-def covariance_plot(data,ch_names,axes=None,method='cov',record_name=None,vmin=None,vmax=None):
+def covariance_plot(data:np.ndarray,ch_names:List[str],axes:matplotlib.axes=None,method:str='cov',record_name:str=None,vmin:float=None,vmax:float=None):
 
     assert len(ch_names) == data.shape[0]
 
