@@ -114,7 +114,7 @@ def head_plots(data:Union[List[np.ndarray],np.ndarray],pos:Union[list,np.ndarray
                 pt_[0],
                 orientation = colorbar_orientation,
                 use_gridspec=True,
-                label=r'$uV^2 /Hz (dB)$'
+                label='uV^2 /Hz (dB)'
                 )
             if band_names is not None:
                 ax_.flatten()[column].set_title(band_names[column])
