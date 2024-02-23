@@ -29,7 +29,7 @@ def create_subplots(n_rows,n_cols):
     fig = make_subplots(rows=n_rows, cols=n_cols)
     return fig
 
-def plot_psd(psd,freqs,row_,col_,fig_,name_,db_limit=None,freqs_limit=None):
+def plot_psd(psd,freqs,row_,col_,fig_,name_,db_limit=None,freqs_limit=None,figsize_=(550,60)):
     """
     Plot Power Spectral Density (PSD) on a subplot.
 
@@ -46,6 +46,7 @@ def plot_psd(psd,freqs,row_,col_,fig_,name_,db_limit=None,freqs_limit=None):
     Returns:
         None
     """
+
 
     if int(name_[-1])%2==0:
         fig_.add_trace(
@@ -68,6 +69,7 @@ def plot_psd(psd,freqs,row_,col_,fig_,name_,db_limit=None,freqs_limit=None):
     fig_.update_xaxes(range=[freqs_limit[0], freqs_limit[1]])  # Set the range for the x-axis
     if db_limit is not None:
         fig_.update_yaxes(range=[db_limit[0], db_limit[1]])
+    fig_.update_layout(width=figsize_[0])
 
 def find_trace_index(fig_, name_):
     """
