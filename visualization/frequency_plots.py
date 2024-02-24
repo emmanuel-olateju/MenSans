@@ -11,6 +11,10 @@ Functions:
 
 """
 
+from typing import Union, List, Tuple
+import copy
+import numpy as np
+
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 from . import plot_globals
@@ -70,35 +74,3 @@ def plot_psd(psd,freqs,row_,col_,fig_,name_,db_limit=None,freqs_limit=None,figsi
     if db_limit is not None:
         fig_.update_yaxes(range=[db_limit[0], db_limit[1]])
     fig_.update_layout(width=figsize_[0])
-
-def find_trace_index(fig_, name_):
-    """
-    Find the index of the trace with the specified name.
-
-    Args:
-        fig_ (plotly.subplots.Subplot): Plotly subplot containing traces.
-        name_ (str): Name of the trace to find.
-
-    Returns:
-        int or None: Index of the trace if found, else None.
-    """
-    for i, trace in enumerate(fig_.data):
-        if trace.name == name_:
-            return i
-    return None
-
-def unplot_psd_by_name(name_, fig_):
-    """
-    Remove a PSD trace from a Plotly figure by its name.
-
-    Args:
-        name_ (str): Name of the trace to remove.
-        fig_ (plotly.subplots.Subplot): Plotly subplot containing the trace.
-
-    Returns:
-        None
-    """
-    trace_index = find_trace_index(fig_, name_)
-    if trace_index is not None:
-        fig_.delete_trace(trace_index)
-        fig_.update_layout(height=fig_.layout.height, width=fig_.layout.width)
