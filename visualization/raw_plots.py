@@ -88,7 +88,7 @@ def head_plots(data:Union[List[np.ndarray],np.ndarray],pos:Union[list,np.ndarray
             data_ = np.moveaxis(data_,range(data_.ndim),[1,0,2])
         elif axis==2:
             data_ = np.moveaxis(data_,range(data_.ndim),[2,0,1])
-        print(data_.shape)
+        # print(data_.shape)
         assert data_.shape[0]==no_rows and data_.shape[1]==no_columns
 
     for row in range(no_rows):
